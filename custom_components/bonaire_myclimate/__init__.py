@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from .BonairePyClimate import hub
 from .const import DOMAIN
 
-PLATFORMS = ["climate"]
+PLATFORMS = ["climate", "binary_sensor"]
 
 
 async def async_setup(hass: HomeAssistant, config: dict):
