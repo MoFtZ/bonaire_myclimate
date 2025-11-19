@@ -3,6 +3,7 @@
 DEVICE_MANUFACTURER = "Bonaire"
 DEVICE_MODEL = "MyClimate Wi-Fi"
 DEVICE_NAME = "Bonaire MyClimate"
+SENSOR_NAME = "Bonaire MyClimate Connected Sensor"
 
 DOMAIN = "bonaire_myclimate"
 

@@ -5,6 +5,10 @@
   "documentation": "https://github.com/bremor/bonaire_myclimate",
   "issue_tracker": "https://github.com/bremor/bonaire_myclimate/issues",
   "requirements": [],
+  "platforms": [
+    "climate",
+    "binary_sensor"
+  ],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
