@@ -123,9 +123,14 @@ class Hub:
         self._callbacks.discard(callback)
 
     async def publish_updates(self):
-        """Schedule call all registered callbacks."""
-        for callback in self._callbacks:
-            callback()
+        """Call all registered callbacks, awaiting async ones and logging failures."""
+        for callback in list(self._callbacks):
+            try:
+                result = callback()
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception:
+                _LOGGER.exception("Error in update callback")
 
     def server_connection_made(self, transport):
         _LOGGER.info("Connected to the Bonaire MyClimate Wi-Fi device")
@@ -225,7 +230,7 @@ class Hub:
 
             self.available = True
             self._ready = True
-            self._hass.loop.create_task(self.publish_updates())
+            self._hass.async_create_task(self.publish_updates())
 
         # Check if the message is postzoneinfo result 'ok'
         elif (root.findtext("response") == "postzoneinfo" and
