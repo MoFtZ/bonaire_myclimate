@@ -133,8 +133,13 @@ class Hub:
 
     async def publish_updates(self):
         """Schedule call all registered callbacks."""
-        for callback in self._callbacks:
-            callback()
+        for callback in list(self._callbacks):
+            try:
+                result = callback()
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception:
+                _LOGGER.exception("Error in update callback")
 
     def server_connection_made(self, transport):
         _LOGGER.info("Connected to the Bonaire MyClimate Wi-Fi device")
