@@ -6,11 +6,11 @@ import xml.etree.ElementTree
 from homeassistant.components.climate.const import ClimateEntityFeature, HVACMode
 
 from .helpers import (
-    create_datagram_transport, create_server, zone_combinations
+    async_send_udp_discovery, create_server, zone_combinations
 )
 from .const import (
     FAN_MODES_COOL, FAN_MODES_EVAP, FAN_MODES_FAN_ONLY, FAN_MODES_HEAT,
-    XML_DELETE, XML_DISCOVERY, XML_GETZONEINFO, XML_INSTALLATION,
+    XML_DELETE, XML_GETZONEINFO, XML_INSTALLATION,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,7 +36,6 @@ class Hub:
         self._zone_info = {}
 
         self._server_transport = None
-        self._udp_transport = None
 
         # Properties
         self.available = False
@@ -58,9 +57,6 @@ class Hub:
         if self._start_task is not None:
             self._start_task.cancel()
 
-        # Close the UDP client
-        self._udp_transport.close()
-
         # Send the delete request
         if self._server_transport is not None:
             _LOGGER.info("Sending delete")
@@ -73,9 +69,6 @@ class Hub:
 
     async def async_start(self):
         """Connects to the Wi-Fi module."""
-        # Create the UDP client
-        self._udp_transport = await create_datagram_transport(self._hass.loop)
-
         # Create the TCP listener
         self._tcp_server = await create_server(self._hass.loop,
                                                self.server_connection_made,
@@ -103,11 +96,7 @@ class Hub:
 
                 attempts += 1
 
-                # Send the UDP discovery broadcast
-                xml_discovery = XML_DISCOVERY.format(self._local_ip)
-                _LOGGER.info("Sending discovery")
-                _LOGGER.debug(f"Sending: {xml_discovery}")
-                self._udp_transport.sendto(xml_discovery.encode())
+                await async_send_udp_discovery(self._local_ip)
 
                 # Wait for 10 seconds for a response to the discovery broadcast
                 await asyncio.sleep(10)
