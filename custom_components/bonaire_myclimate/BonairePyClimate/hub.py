@@ -230,7 +230,7 @@ class Hub:
 
             self.available = True
             self._ready = True
-            self._hass.async_create_task(self.publish_updates())
+            self._hass.loop.create_task(self.publish_updates())
 
         # Check if the message is postzoneinfo result 'ok'
         elif (root.findtext("response") == "postzoneinfo" and
